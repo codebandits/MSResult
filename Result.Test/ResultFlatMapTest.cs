@@ -14,7 +14,6 @@ namespace Result.Test
             Result<int, string> newResult = oldResult.FlatMap(Convert.ToInt32);
 
             Assert.AreEqual(newResult.Success, 42);
-            
         }
     }
 }

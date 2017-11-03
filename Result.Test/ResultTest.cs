@@ -39,5 +39,15 @@ namespace Result.Test
 
             var sucess = result.Success;
         }
+
+        [TestMethod]
+        public void ResultType_FlatMap_ReturnFailure_WhenFails() {
+            var failureResult = new Result<int, string>("go home please");
+            var newFailureResult = failureResult.FlatMap((value) => (value / 10.0));
+
+            Assert.AreEqual("go home please", newFailureResult.Failure);
+
+            TestHelper.Throws<InvalidOperationException>(() => { var value = newFailureResult.Success; });
+        }
     }
 }
