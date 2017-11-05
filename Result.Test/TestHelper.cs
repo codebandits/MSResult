@@ -5,22 +5,20 @@ namespace Result.Test
 {
     public class TestHelper
     {
-        public static void Throws<T>(Action func) where T : Exception
+        public static void ShouldThrow<T>(Action func) where T : Exception
         {
-            var exceptionThrown = false;
             try
             {
                 func.Invoke();
-            }
-            catch (T)
-            {
-                exceptionThrown = true;
-            }
-
-            if (!exceptionThrown)
-            {
                 throw new AssertFailedException(
                     String.Format("An exception of type {0} was expected, but not thrown", typeof(T))
+                    );
+            }
+            catch (T) { }
+            catch (AssertFailedException) {}
+            catch(Exception e)
+            { throw new AssertFailedException(
+                String.Format("An exception of type {0} was expected, but throw {1}", typeof(T), e)
                     );
             }
         }

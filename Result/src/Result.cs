@@ -19,14 +19,7 @@ namespace Result
             this.failure = failure;
             this.isSucess = false;
         }
-
-        public Result<NewSucess, F> FlatMap<NewSucess>(Func<S, NewSucess> transform) {
-            if(isSucess)
-                return new Result<NewSucess, F>(transform(this.data));
-
-            return new Result<NewSucess, F>(this.failure);
-        }
-
+       
         public S Success
         {
             get {

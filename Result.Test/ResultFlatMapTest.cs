@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Result.Test
@@ -7,13 +8,43 @@ namespace Result.Test
     public class ResultFlatMapTest
     {
         [TestMethod]
-        public void FlatMap_transformSuccessTypesWithALambda()
+        public void ResultType_FlatMap_TransformAndFlatResult()
         {
-            var oldResult = new Result<double, string>(42.5);
+            var result = new Result<double, string>(43.6);
+            var newResult = result.FlatMap((value) => new Result<int, string>(Convert.ToInt32(value)));
 
-            Result<int, string> newResult = oldResult.FlatMap(Convert.ToInt32);
+            Assert.AreEqual(44, newResult.Success);
+        }
 
-            Assert.AreEqual(newResult.Success, 42);
+        [TestMethod]
+        public void ResultType_FlatMap_DoesNotTransform_WhenError()
+        {
+            var result = new Result<double, string>("haha! I hate doubles!");
+            var newResult = result.FlatMap((value) => new Result<int, string>(Convert.ToInt32(value)));
+
+            Assert.AreEqual("haha! I hate doubles!", newResult.Failure);
+
+            TestHelper.ShouldThrow<InvalidOperationException>(() => { var value = newResult.Success; });
+        }
+
+        [TestMethod]
+        public void ResultType_FlatMapError_TransformAndFlatResultFailure()
+        {
+            var result = new Result<double, string>("error1,error2");
+            var newResult = result.FlatMapError((value) => new Result<double, string[]>(value.Split(",")));
+
+            Assert.IsTrue(Enumerable.SequenceEqual(new string[] { "error1", "error2" }, newResult.Failure));
+        }
+
+        [TestMethod]
+        public void ResultType_FlatMapError_ReturnsNewResultWithNewFailureType_WhenSucess()
+        {
+            var result = new Result<double, string>(3.4);
+            var newResult = result.FlatMapError((value) => new Result<double, string[]>(value.Split(",")));
+
+            Assert.AreEqual(3.4, newResult.Success);
+
+            TestHelper.ShouldThrow<InvalidOperationException>(() => { var value = newResult.Failure; });
         }
     }
 }
