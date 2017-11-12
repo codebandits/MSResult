@@ -9,33 +9,29 @@ namespace Result.Test
         [TestMethod]
         public void ResultType_WhenItHasASucess_ReturnsSucessValue()
         {
-            var result = new Result<int, string>(42);
+            var result = new Success<int, string>(42);
 
-            Assert.AreEqual(result.Success, 42);
-        }
-
-        [TestMethod]
-        public void ResultType_SuccessDoesNotHaveFailure()
-        {
-            var result = new Result<int, string>(42);
-
-            TestHelper.ShouldThrow<InvalidOperationException>(() => { var failure = result.Failure; } );
+            Assert.AreEqual(result.content, 42);
         }
 
         [TestMethod]
         public void ResultType_WhenFailure_RetursReason()
         {
-            var result = new Result<Object, string>("It went so wrong!");
+            var result = new Failure<Object, string>("It went so wrong!");
 
-            Assert.AreEqual("It went so wrong!", result.Failure);
+            Assert.AreEqual("It went so wrong!", result.content);
         }
 
         [TestMethod]
-        public void ResultType_FailureDoesNotHaveSucess()
+        public void ResultType_WithSameTypes_ShouldBeAbleToSayIfItIsSuccessOrFailure()
         {
-            var result = new Result<Object, string>("RIP");
+            var success = new Success<string, string>("my sucess");
 
-            TestHelper.ShouldThrow<InvalidOperationException>(() => { var failure = result.Success; });
+            Assert.AreEqual(success.content, "my sucess");
+        
+            var failure = new Failure<string, string>("my failure");
+
+            Assert.AreEqual(failure.content, "my failure");
         }
     }
 }

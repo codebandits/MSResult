@@ -10,41 +10,37 @@ namespace Result.Test
         [TestMethod]
         public void ResultType_FlatMap_TransformAndFlatResult()
         {
-            var result = new Result<double, string>(43.6);
-            var newResult = result.FlatMap((value) => new Result<int, string>(Convert.ToInt32(value)));
+            var result = new Success<double, string>(43.6);
+            var newResult = (Success<int, string>)result.FlatMap((value) => new Success<int, string>(Convert.ToInt32(value)));
 
-            Assert.AreEqual(44, newResult.Success);
+            Assert.AreEqual(44, newResult.content);
         }
 
         [TestMethod]
         public void ResultType_FlatMap_DoesNotTransform_WhenError()
         {
-            var result = new Result<double, string>("haha! I hate doubles!");
-            var newResult = result.FlatMap((value) => new Result<int, string>(Convert.ToInt32(value)));
+            var result = new Failure<double, string>("haha! I hate doubles!");
+            var newResult = (Failure<int, string>)result.FlatMap((value) => new Success<int, string>(Convert.ToInt32(value)));
 
-            Assert.AreEqual("haha! I hate doubles!", newResult.Failure);
-
-            TestHelper.ShouldThrow<InvalidOperationException>(() => { var value = newResult.Success; });
+            Assert.AreEqual("haha! I hate doubles!", newResult.content);
         }
 
         [TestMethod]
         public void ResultType_FlatMapError_TransformAndFlatResultFailure()
         {
-            var result = new Result<double, string>("error1,error2");
-            var newResult = result.FlatMapError((value) => new Result<double, string[]>(value.Split(",")));
+            var result = new Failure<double, string>("error1,error2");
+            var newResult = (Failure<double, string[]>)result.FlatMapError((value) => new Failure<double, string[]>(value.Split(",")));
 
-            Assert.IsTrue(Enumerable.SequenceEqual(new string[] { "error1", "error2" }, newResult.Failure));
+            Assert.IsTrue(Enumerable.SequenceEqual(new string[] { "error1", "error2" }, newResult.content));
         }
 
         [TestMethod]
         public void ResultType_FlatMapError_ReturnsNewResultWithNewFailureType_WhenSucess()
         {
-            var result = new Result<double, string>(3.4);
-            var newResult = result.FlatMapError((value) => new Result<double, string[]>(value.Split(",")));
+            var result = new Success<double, string>(3.4);
+            var newResult = (Success<double, string[]>)result.FlatMapError((value) => new Failure<double, string[]>(value.Split(",")));
 
-            Assert.AreEqual(3.4, newResult.Success);
-
-            TestHelper.ShouldThrow<InvalidOperationException>(() => { var value = newResult.Failure; });
+            Assert.AreEqual(3.4, newResult.content);
         }
     }
 }

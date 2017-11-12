@@ -3,41 +3,26 @@ using System.Diagnostics.Contracts;
 
 namespace Result
 {
-    sealed public class Result<S,F>
+
+    public abstract class Result<S,F> { }
+
+    sealed public class Success<S,F> : Result<S,F>
     {
-        private readonly S data;
-        private readonly F failure;
+        public readonly S content;
 
-        private readonly Boolean isSucess;
-
-        public Result(S data) {
-            this.data = data;
-            this.isSucess = true;
-        }
-
-        public Result(F failure) {
-            this.failure = failure;
-            this.isSucess = false;
-        }
-       
-        public S Success
+        public Success(S content)
         {
-            get {
-                if (!isSucess)
-                    throw new InvalidOperationException("it is not sucess!");
-
-                return data;
-            }
+            this.content = content;
         }
+    }
 
-        public F Failure
+    sealed public class Failure<S,F>: Result<S,F>
+    {
+        public readonly F content;
+
+        public Failure(F content)
         {
-            get {
-                if (isSucess)
-                    throw new InvalidOperationException("it is a sucess");
-
-                return failure;
-            }  
+            this.content = content;
         }
     }
 }

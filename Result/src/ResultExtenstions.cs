@@ -5,47 +5,49 @@ namespace Result
     {
         public static Result<NewSucess, F> Map<S, F, NewSucess>(this Result<S,F> result, Func<S, NewSucess> transform)
         {
-            try {
-                return new Result<NewSucess, F>(transform(result.Success));
-            } catch (InvalidOperationException) {
-                return new Result<NewSucess, F>(result.Failure);
+            if(result is Success<S,F>)
+            {
+                return new Success<NewSucess, F>(transform(((Success<S, F>)result).content));
+            } 
+            else
+            {
+                return new Failure<NewSucess, F>(((Failure<S,F>)result).content);
             }
         }
 
         public static Result<S, NewFailureType> MapError<S, F, NewFailureType>(this Result<S, F> result, Func<F, NewFailureType> transform)
         {
-            try
+            if (result is Failure<S, F>)
             {
-                return new Result<S, NewFailureType>(transform(result.Failure));
+                return new Failure<S, NewFailureType>(transform(((Failure<S, F>)result).content));
             }
-            catch (InvalidOperationException)
+            else
             {
-                return new Result<S, NewFailureType>(result.Success);
-            
+                return new Success<S, NewFailureType>(((Success<S, F>)result).content);
             }
         }
 
         public static Result<NewSucess, F> FlatMap<S, F, NewSucess>(this Result<S, F> result, Func<S, Result<NewSucess, F>> transform)
         {
-            try
+            if(result is Success<S,F>)
             {
-                return transform(result.Success);
+                return transform(((Success<S,F>)result).content);
             }
-            catch (InvalidOperationException)
+            else
             {
-                return new Result<NewSucess, F>(result.Failure);
+                return new Failure<NewSucess, F>(((Failure<S,F>)result).content);
             }
         }
 
         public static Result<S, NewFailureType> FlatMapError<S, F, NewFailureType>(this Result<S, F> result, Func<F, Result<S, NewFailureType>> transform)
         {
-            try
+            if( result is Failure<S,F>)
             {
-                return transform(result.Failure);
+                return transform(((Failure<S,F>)result).content);
             }
-            catch (InvalidOperationException)
+            else
             {
-                return new Result<S, NewFailureType>(result.Success);
+                return new Success<S, NewFailureType>(((Success<S,F>)result).content);
             
             }
         }
