@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+
 namespace Result
 {
     public static class ResultExtenstions
@@ -50,6 +53,34 @@ namespace Result
                 return new Success<S, NewFailureType>(((Success<S,F>)result).content);
             
             }
+        }
+
+        public static Result<List<S>, F> Traverse<S, F>(this List<Result<S, F>> resultList)
+        {
+            return resultList.Aggregate(
+                new Success<List<S>, F>(new List<S>()),
+                (Result<List<S>, F> acc, Result<S, F> result) =>
+                {
+                    if (acc is Success<List<S>, F>)
+                    {
+                        if (result is Success<S, F>)
+                        {
+                            var list = ((Success<List<S>, F>)acc).content;
+                            list.Add(((Success<S, F>)result).content);
+                            return new Success<List<S>, F>(list);
+                        }
+                        else
+                        {
+                            var failure = ((Failure<S, F>)result).content;
+                            return new Failure<List<S>, F>(failure);
+                        }
+                    }
+                    else
+                    {
+                        return acc;
+                    }
+                }
+            );
         }
     }
 }
