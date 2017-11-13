@@ -6,6 +6,21 @@ namespace Result
 {
     public static class ResultExtenstions
     {
+        public static Func<Result<S,F>, Result<S,F>> Bind<S,F>(Func<S, Result<S,F>> fun)
+        {
+            return (Result<S, F> input) =>
+            {
+                if (input is Success<S, F>)
+                {
+                    return fun(((Success<S, F>)input).content);
+                }
+                else
+                {
+                    return input;
+                }
+            };
+        }
+
         public static Result<NewSucess, F> Map<S, F, NewSucess>(this Result<S,F> result, Func<S, NewSucess> transform)
         {
             if(result is Success<S,F>)
